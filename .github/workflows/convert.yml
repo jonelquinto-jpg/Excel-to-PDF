@@ -1,0 +1,30 @@
+name: Convert Excel to PDF
+
+on:
+  push:
+    paths:
+      - '**.xlsx'
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install LibreOffice
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libreoffice
+
+      - name: Convert XLSX files to PDF
+        run: |
+          soffice --headless --convert-to pdf *.xlsx || true
+
+      - name: Commit and push generated PDF
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add *.pdf
+          git commit -m "Auto-converted Excel CV to PDF" || echo "No changes to commit"
+          git push
